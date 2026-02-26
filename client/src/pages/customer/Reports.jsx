@@ -19,8 +19,8 @@ const Reports = () => {
 
   const fetchBooking = async () => {
     try {
-      const response = await api.get(`/customer/bookings/${bookingId}`)
-      setBooking(response.data.booking)
+      const response = await api.get(`/bookings/${bookingId}`)
+      setBooking(response.data.data.booking)
     } catch (error) {
       toast.error('Failed to fetch booking')
     } finally {
@@ -31,7 +31,7 @@ const Reports = () => {
   const fetchAllBookings = async () => {
     try {
       const response = await api.get('/customer/bookings')
-      setBooking({ bookings: response.data.bookings })
+      setBooking({ bookings: response.data.data })
     } catch (error) {
       toast.error('Failed to fetch bookings')
     } finally {

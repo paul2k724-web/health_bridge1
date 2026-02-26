@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../../store/api'
 import { DashboardLayout } from '../../components/layout'
-import { Card, Badge, Button, Skeleton } from '../../components/ui'
+import { Card, Badge, Button, Skeleton, BookingMap } from '../../components/ui'
 import { StatsCard, EmptyState, StatusBadge } from '../../components/shared'
-import { FiUsers, FiBriefcase, FiDollarSign, FiCheckCircle, FiAlertCircle, FiArrowRight, FiTrendingUp, FiActivity, FiUserCheck } from 'react-icons/fi'
+import { FiUsers, FiBriefcase, FiDollarSign, FiCheckCircle, FiAlertCircle, FiArrowRight, FiTrendingUp, FiActivity, FiUserCheck, FiMap } from 'react-icons/fi'
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -28,11 +28,11 @@ const AdminDashboard = () => {
     try {
       const [dashboardRes, providersRes] = await Promise.all([
         api.get('/admin/dashboard/stats'),
-        api.get('/admin/providers?status=pending'),
+        api.get('/provider/admin?status=pending'),
       ])
-      setStats(dashboardRes.data.stats)
-      setRecentBookings(dashboardRes.data.recentBookings || [])
-      setPendingProviders(providersRes.data.providers?.slice(0, 5) || [])
+      setStats(dashboardRes.data.data.stats)
+      setRecentBookings(dashboardRes.data.data.recentBookings || [])
+      setPendingProviders(providersRes.data.data?.providers?.slice(0, 5) || [])
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error)
     } finally {
@@ -227,6 +227,24 @@ const AdminDashboard = () => {
             )}
           </Card>
         </div>
+
+        <Card padding="none">
+          <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+              <FiMap className="w-5 h-5" />
+              Booking Locations Map
+            </h2>
+            <Link to="/admin/reports" className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300">
+              View Reports
+            </Link>
+          </div>
+          <div className="p-4">
+            <BookingMap
+              bookings={recentBookings}
+              height="350px"
+            />
+          </div>
+        </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Link to="/admin/users" className="block">

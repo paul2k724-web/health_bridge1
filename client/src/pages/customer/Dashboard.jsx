@@ -27,7 +27,7 @@ const CustomerDashboard = () => {
   const fetchAddresses = async () => {
     try {
       const response = await api.get('/customer/addresses')
-      setAddresses(response.data.addresses)
+      setAddresses(response.data.data.addresses)
     } catch (error) {
       console.error('Failed to fetch addresses:', error)
     }

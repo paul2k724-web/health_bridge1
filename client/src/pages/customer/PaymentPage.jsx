@@ -22,8 +22,8 @@ const PaymentPage = () => {
 
   const fetchBooking = async () => {
     try {
-      const response = await api.get(`/customer/bookings/${bookingId}`)
-      setBooking(response.data.booking)
+      const response = await api.get(`/bookings/${bookingId}`)
+      setBooking(response.data.data.booking)
     } catch (error) {
       toast.error('Failed to fetch booking details')
     } finally {
@@ -34,9 +34,9 @@ const PaymentPage = () => {
   const createOrder = async () => {
     try {
       const response = await api.post('/payment/create-order', { bookingId })
-      setOrder(response.data.order)
+      setOrder(response.data.data?.order || null)
     } catch (error) {
-      toast.error('Failed to create payment order')
+      // Payment not available yet - skip silently
     }
   }
 

@@ -6,8 +6,13 @@ export const login = createAsyncThunk(
   async ({ email, password }, { rejectWithValue }) => {
     try {
       const response = await api.post('/auth/login', { email, password })
-      localStorage.setItem('token', response.data.token)
-      return response.data
+      const data = response.data.data
+      
+      if (data.token) {
+        localStorage.setItem('token', data.token)
+      }
+      
+      return data
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Login failed')
     }
@@ -19,7 +24,7 @@ export const register = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await api.post('/auth/register', userData)
-      return response.data
+      return response.data.data
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Registration failed')
     }
@@ -31,10 +36,10 @@ export const verifyOTP = createAsyncThunk(
   async ({ userId, otp }, { rejectWithValue }) => {
     try {
       const response = await api.post('/auth/verify-otp', { userId, otp })
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token)
+      if (response.data.data.token) {
+        localStorage.setItem('token', response.data.data.token)
       }
-      return response.data
+      return response.data.data
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'OTP verification failed')
     }
@@ -46,7 +51,7 @@ export const getMe = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get('/auth/me')
-      return response.data.user
+      return response.data.data.user
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to get user')
     }
@@ -81,9 +86,11 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false
-        state.user = action.payload.user
-        state.token = action.payload.token
-        state.isAuthenticated = true
+        if (action.payload.user) {
+          state.user = action.payload.user
+          state.token = action.payload.token
+          state.isAuthenticated = true
+        }
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false

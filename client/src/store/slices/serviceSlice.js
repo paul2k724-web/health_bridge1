@@ -6,7 +6,7 @@ export const getServices = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get('/services')
-      return response.data.services
+      return response.data.data.services
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch services')
     }

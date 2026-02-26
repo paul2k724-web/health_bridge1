@@ -24,7 +24,7 @@ const UserManagement = () => {
     try {
       const params = filter !== 'all' ? { role: filter } : {}
       const response = await api.get('/admin/users', { params })
-      setUsers(response.data.users)
+      setUsers(response.data.data.users)
     } catch (error) {
       toast.error('Failed to fetch users')
     } finally {

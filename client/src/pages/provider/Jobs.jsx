@@ -2,15 +2,16 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../../store/api'
 import { DashboardLayout } from '../../components/layout'
-import { Card, Button, Select, Skeleton } from '../../components/ui'
+import { Card, Button, Select, Skeleton, JobMap } from '../../components/ui'
 import { StatusBadge, EmptyState } from '../../components/shared'
-import { FiCalendar, FiClock, FiMapPin, FiNavigation, FiUser, FiPhone, FiCheck, FiPlay } from 'react-icons/fi'
+import { FiCalendar, FiClock, FiMapPin, FiNavigation, FiUser, FiPhone, FiCheck, FiPlay, FiMap, FiList } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 
 const ProviderJobs = () => {
   const [jobs, setJobs] = useState([])
   const [filter, setFilter] = useState('all')
   const [loading, setLoading] = useState(true)
+  const [viewMode, setViewMode] = useState('list')
 
   useEffect(() => {
     fetchJobs()
@@ -20,7 +21,7 @@ const ProviderJobs = () => {
     try {
       const params = filter !== 'all' ? { status: filter } : {}
       const response = await api.get('/provider/jobs', { params })
-      setJobs(response.data.jobs)
+      setJobs(response.data.data)
     } catch (error) {
       toast.error('Failed to fetch jobs')
     } finally {
@@ -141,7 +142,31 @@ const ProviderJobs = () => {
           </Card>
         ) : (
           <div className="space-y-4">
-            {jobs.map((job) => (
+            <div className="flex justify-end">
+              <div className="flex items-center rounded-lg overflow-hidden border border-primary-200">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 ${viewMode === 'list' ? 'bg-primary-900 text-white' : 'bg-white text-primary-600'}`}
+                >
+                  <FiList className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setViewMode('map')}
+                  className={`p-2 ${viewMode === 'map' ? 'bg-primary-900 text-white' : 'bg-white text-primary-600'}`}
+                >
+                  <FiMap className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {viewMode === 'map' && (
+              <JobMap
+                jobs={jobs}
+                height="400px"
+              />
+            )}
+
+            {viewMode === 'list' && jobs.map((job) => (
               <Card key={job._id} padding="none">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
@@ -271,7 +296,7 @@ const ProviderJobs = () => {
                     </div>
                   </div>
                 </div>
-              </Card>
+</Card>
             ))}
           </div>
         )}

@@ -23,8 +23,8 @@ const ServiceManagement = () => {
 
   const fetchServices = async () => {
     try {
-      const response = await api.get('/admin/services')
-      setServices(response.data.services)
+      const response = await api.get('/services')
+      setServices(response.data.data.services)
     } catch (error) {
       toast.error('Failed to fetch services')
     } finally {

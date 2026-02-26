@@ -2,19 +2,30 @@ import { Navigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
 const RoleRoute = ({ children, allowedRoles }) => {
-  const { user, loading, token } = useSelector((state) => state.auth)
+  const { user, loading, token, isAuthenticated } = useSelector((state) => state.auth)
 
-  // While we are resolving the current user (e.g., getMe in progress), avoid redirecting
   if (loading || (token && !user)) {
-    return null
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-slate-500 dark:text-slate-400">Loading...</p>
+        </div>
+      </div>
+    )
   }
 
-  if (!user) {
+  if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />
   }
 
   if (!allowedRoles.includes(user.role)) {
-    return <Navigate to="/" replace />
+    const dashboardRoutes = {
+      customer: '/customer/dashboard',
+      provider: '/provider/dashboard',
+      admin: '/admin/dashboard',
+    }
+    return <Navigate to={dashboardRoutes[user.role] || '/'} replace />
   }
 
   return children

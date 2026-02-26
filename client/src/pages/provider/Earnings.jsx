@@ -19,8 +19,8 @@ const ProviderEarnings = () => {
   const fetchEarnings = async () => {
     try {
       const response = await api.get('/provider/earnings')
-      setEarnings(response.data.earnings)
-      setRecentBookings(response.data.recentBookings || [])
+      setEarnings(response.data.data.earnings)
+      setRecentBookings(response.data.data.recentBookings || [])
     } catch (error) {
       console.error('Failed to fetch earnings:', error)
     } finally {

@@ -10,7 +10,6 @@ import {
   FiDollarSign,
   FiBriefcase,
   FiUsers,
-  FiSettings,
   FiLogOut,
   FiChevronLeft,
   FiChevronRight,
@@ -28,9 +27,9 @@ const customerNavItems = [
 
 const providerNavItems = [
   { name: 'Dashboard', href: '/provider/dashboard', icon: FiHome },
-  { name: 'Jobs', href: '/provider/jobs', icon: FiBriefcase },
+  { name: 'Available Jobs', href: '/provider/available', icon: FiBriefcase },
+  { name: 'My Jobs', href: '/provider/jobs', icon: FiClipboard },
   { name: 'Earnings', href: '/provider/earnings', icon: FiDollarSign },
-  { name: 'Reports', href: '/provider/reports', icon: FiFileText },
 ]
 
 const adminNavItems = [
@@ -41,7 +40,7 @@ const adminNavItems = [
   { name: 'Reports', href: '/admin/reports', icon: FiClipboard },
 ]
 
-const Sidebar = ({ collapsed = false, onToggle }) => {
+const Sidebar = ({ collapsed = false, onToggle, mobileOpen = false, onMobileClose }) => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()
@@ -80,6 +79,12 @@ const Sidebar = ({ collapsed = false, onToggle }) => {
     }
   }
 
+  const handleNavClick = () => {
+    if (mobileOpen && onMobileClose) {
+      onMobileClose()
+    }
+  }
+
   return (
     <aside
       className={`
@@ -89,7 +94,9 @@ const Sidebar = ({ collapsed = false, onToggle }) => {
         flex flex-col
         transition-all duration-200 ease-smooth
         z-40
-        ${collapsed ? 'w-18' : 'w-64'}
+        w-64
+        ${collapsed ? 'lg:w-20' : 'lg:w-64'}
+        ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}
     >
       <div className={`flex items-center h-16 px-4 border-b border-white/10 ${collapsed ? 'justify-center' : 'justify-between'}`}>
@@ -135,6 +142,7 @@ const Sidebar = ({ collapsed = false, onToggle }) => {
             <NavLink
               key={item.href}
               to={item.href}
+              onClick={handleNavClick}
               className={`
                 flex items-center gap-3 px-3 py-2.5 rounded-lg
                 transition-all duration-150

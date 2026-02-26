@@ -33,8 +33,8 @@ const ProviderApproval = () => {
   const fetchProviders = async () => {
     try {
       const params = filter !== 'all' ? { status: filter } : {}
-      const response = await api.get('/admin/providers', { params })
-      setProviders(response.data.providers || [])
+      const response = await api.get('/provider/admin', { params })
+      setProviders(response.data.data?.providers || [])
     } catch (error) {
       toast.error('Failed to fetch providers')
     } finally {
@@ -45,7 +45,7 @@ const ProviderApproval = () => {
   const handleApproveReject = async (providerId, action, reason = '') => {
     setActionLoading(true)
     try {
-      await api.patch(`/admin/providers/${providerId}/approve-reject`, {
+      await api.patch(`/provider/admin/${providerId}/approve-reject`, {
         action,
         rejectionReason: reason,
       })

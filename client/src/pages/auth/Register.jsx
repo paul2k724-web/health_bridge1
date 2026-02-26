@@ -42,7 +42,23 @@ const Register = () => {
     try {
       const result = await dispatch(register(formData)).unwrap()
       toast.success('Registration successful! Please verify OTP.')
-      navigate('/verify-otp', { state: { userId: result.userId } })
+      
+      if (formData.role === 'provider') {
+        navigate('/verify-otp', { 
+          state: { 
+            userId: result.userId,
+            email: formData.email,
+            redirectTo: '/provider/onboarding'
+          } 
+        })
+      } else {
+        navigate('/verify-otp', { 
+          state: { 
+            userId: result.userId,
+            email: formData.email
+          } 
+        })
+      }
     } catch (error) {
       toast.error(error || 'Registration failed')
     }

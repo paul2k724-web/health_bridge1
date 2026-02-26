@@ -6,7 +6,7 @@ export const createBooking = createAsyncThunk(
   async (bookingData, { rejectWithValue }) => {
     try {
       const response = await api.post('/bookings', bookingData)
-      return response.data
+      return response.data.data
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Booking failed')
     }
@@ -18,7 +18,7 @@ export const getMyBookings = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get('/customer/bookings')
-      return response.data.bookings
+      return response.data.data
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch bookings')
     }

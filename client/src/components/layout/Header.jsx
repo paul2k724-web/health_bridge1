@@ -1,24 +1,23 @@
 import { useState, useRef, useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import { FiBell, FiChevronDown, FiUser, FiSettings, FiLogOut, FiHelpCircle, FiSun, FiMoon } from 'react-icons/fi'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
+import { logout } from '../../store/slices/authSlice'
+import { FiChevronDown, FiUser, FiSettings, FiLogOut, FiHelpCircle, FiSun, FiMoon } from 'react-icons/fi'
 import { useTheme } from '../../context/ThemeContext'
+import { NotificationBell } from '../shared'
 
-const Header = ({ title, breadcrumbs = [], notificationCount = 0 }) => {
+const Header = ({ title, breadcrumbs = [], onMenuToggle }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [notificationsOpen, setNotificationsOpen] = useState(false)
   const dropdownRef = useRef(null)
-  const notificationRef = useRef(null)
   const { user } = useSelector((state) => state.auth)
   const { isDark, toggleTheme } = useTheme()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false)
-      }
-      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
-        setNotificationsOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -40,8 +39,8 @@ const Header = ({ title, breadcrumbs = [], notificationCount = 0 }) => {
 
   return (
     <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700">
-      <div className="flex items-center justify-between h-16 px-6">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between h-16 px-4 sm:px-6">
+        <div className="flex items-center gap-4 pl-12 lg:pl-0">
           {breadcrumbs.length > 0 ? (
             <nav className="flex items-center gap-2 text-sm">
               {breadcrumbs.map((crumb, index) => (
@@ -75,30 +74,7 @@ const Header = ({ title, breadcrumbs = [], notificationCount = 0 }) => {
             {isDark ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
           </button>
 
-          <div className="relative" ref={notificationRef}>
-            <button
-              onClick={() => setNotificationsOpen(!notificationsOpen)}
-              className="relative p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-            >
-              <FiBell className="w-5 h-5" />
-              {notificationCount > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-              )}
-            </button>
-
-            {notificationsOpen && (
-              <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 animate-scale-in">
-                <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-                  <h3 className="font-semibold text-slate-800 dark:text-white">Notifications</h3>
-                </div>
-                <div className="p-4">
-                  <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">
-                    No new notifications
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
+          <NotificationBell />
 
           <div className="h-6 w-px bg-slate-200 dark:bg-slate-700" />
 
@@ -142,7 +118,9 @@ const Header = ({ title, breadcrumbs = [], notificationCount = 0 }) => {
                   <button
                     className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                     onClick={() => {
+                      dispatch(logout())
                       setDropdownOpen(false)
+                      navigate('/login')
                     }}
                   >
                     <FiLogOut className="w-4 h-4" />

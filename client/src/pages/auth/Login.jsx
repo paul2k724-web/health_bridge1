@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
 import { FiMail, FiLock, FiActivity, FiArrowRight, FiSun, FiMoon } from 'react-icons/fi'
+import { FcGoogle } from 'react-icons/fc'
 import { login, getMe } from '../../store/slices/authSlice'
+import api from '../../store/api'
 import { Button, Input } from '../../components/ui'
 import { useTheme } from '../../context/ThemeContext'
 import toast from 'react-hot-toast'
@@ -12,15 +14,79 @@ const Login = () => {
     email: '',
     password: '',
   })
+  const [googleLoading, setGoogleLoading] = useState(false)
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { loading } = useSelector((state) => state.auth)
   const { isDark, toggleTheme } = useTheme()
 
+  const handleGoogleLogin = async () => {
+    if (!import.meta.env.VITE_GOOGLE_CLIENT_ID) {
+      toast.error('Google login is not configured')
+      return
+    }
+    
+    setGoogleLoading(true)
+    try {
+      const google = window.google
+      if (!google) {
+        toast.error('Google login not available. Please refresh the page.')
+        setGoogleLoading(false)
+        return
+      }
+
+      google.accounts.id.initialize({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        callback: async (response) => {
+          try {
+            const res = await api.post('/auth/google', { 
+              idToken: response.credential,
+              role: 'customer'
+            })
+            
+            localStorage.setItem('token', res.data.data.token)
+            const user = await dispatch(getMe()).unwrap()
+            toast.success('Google login successful!')
+            
+            if (user.role === 'customer') {
+              navigate('/customer/dashboard')
+            } else if (user.role === 'provider') {
+              navigate('/provider/dashboard')
+            } else if (user.role === 'admin') {
+              navigate('/admin/dashboard')
+            } else {
+              navigate('/')
+            }
+          } catch (error) {
+            toast.error(error.response?.data?.message || 'Google login failed')
+          }
+          setGoogleLoading(false)
+        },
+      })
+      
+      google.accounts.id.prompt()
+    } catch (error) {
+      toast.error('Google login failed')
+      setGoogleLoading(false)
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      await dispatch(login(formData)).unwrap()
+      const result = await dispatch(login(formData)).unwrap()
+      
+      if (result.requiresOTP) {
+        toast.success('Please verify your OTP to continue')
+        navigate('/verify-otp', { 
+          state: { 
+            userId: result.userId,
+            email: formData.email
+          } 
+        })
+        return
+      }
+      
       const user = await dispatch(getMe()).unwrap()
       toast.success('Login successful!')
       if (user.role === 'customer') {
@@ -186,6 +252,33 @@ const Login = () => {
                 Sign In
               </Button>
             </form>
+
+            {import.meta.env.VITE_GOOGLE_CLIENT_ID && (
+              <div className="mt-6">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-200 dark:border-slate-700" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                      Or continue with
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  disabled={googleLoading}
+                  className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
+                >
+                  <FcGoogle className="w-5 h-5" />
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {googleLoading ? 'Signing in...' : 'Continue with Google'}
+                  </span>
+                </button>
+              </div>
+            )}
 
             <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
               <p className="text-center text-sm text-slate-500 dark:text-slate-400">

@@ -14,11 +14,27 @@ import {
   FiAward,
   FiSmartphone,
   FiLock,
-  FiZap
+  FiZap,
+  FiPlay
 } from 'react-icons/fi'
 
 const Home = () => {
   const { darkMode, toggleDarkMode } = useTheme()
+
+  const heroImage = 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=600&fit=crop&q=80'
+  
+  const serviceImages = {
+    'General Consultation': 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=300&fit=crop&q=80',
+    'Dental Checkup': 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&h=300&fit=crop&q=80',
+    'Eye Examination': 'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=400&h=300&fit=crop&q=80',
+    'Lab Tests': 'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=400&h=300&fit=crop&q=80',
+  }
+
+  const testimonialAvatars = {
+    'Dr. Sarah Johnson': 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=100&h=100&fit=crop&q=80',
+    'Michael Chen': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&q=80',
+    'Dr. Priya Sharma': 'https://images.unsplash.com/photo-1614608682850-e0d6ed316d47?w=100&h=100&fit=crop&q=80',
+  }
 
   const features = [
     {
@@ -197,39 +213,74 @@ const Home = () => {
             </div>
 
             <div className="relative animate-slide-up delay-200">
-              {/* Decorative elements */}
-              <div className="absolute -top-10 -right-10 w-72 h-72 bg-gradient-to-br from-teal-500/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse-slow" />
-              <div className="absolute -bottom-10 -left-10 w-72 h-72 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-full blur-3xl animate-pulse-slow delay-500" />
+              {/* Hero Image */}
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                <img 
+                  src={heroImage}
+                  alt="Healthcare professionals"
+                  className="w-full h-auto object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent" />
+                
+                {/* Play Button Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <button className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
+                    <FiPlay className="w-6 h-6 text-teal-500 ml-1" />
+                  </button>
+                </div>
+              </div>
               
-              {/* Stats cards */}
-              <div className="relative grid grid-cols-2 gap-4">
-                {stats.map((stat, index) => (
-                  <div
-                    key={index}
-                    className="p-6 rounded-2xl card-hover animate-slide-up"
-                    style={{ 
-                      backgroundColor: 'var(--card-bg)', 
-                      border: '1px solid var(--border-color)',
-                      animationDelay: `${0.3 + index * 0.1}s`
-                    }}
-                  >
-                    <stat.icon className="w-8 h-8 mb-3 text-teal-500" />
-                    <p className="text-3xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
-                      {stat.value}
-                    </p>
-                    <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                      {stat.label}
-                    </p>
+              {/* Floating Stats Card */}
+              <div className="absolute -bottom-6 -left-6 p-4 rounded-xl shadow-xl animate-float" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center">
+                    <FiUsers className="w-6 h-6 text-white" />
                   </div>
-                ))}
+                  <div>
+                    <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>50K+</p>
+                    <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Happy Patients</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating Rating Card */}
+              <div className="absolute -top-4 -right-4 p-3 rounded-xl shadow-xl animate-float delay-500" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)' }}>
+                <div className="flex items-center gap-2">
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <FiStar key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
+                  <span className="font-bold" style={{ color: 'var(--text-primary)' }}>4.9</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Stats Section */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8 border-y" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <stat.icon className="w-8 h-8 mx-auto mb-3 text-teal-500" />
+                <p className="text-3xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+                  {stat.value}
+                </p>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                  {stat.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Services Preview */}
-      <section id="services" className="py-20 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+      <section id="services" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 animate-fade-in">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
@@ -244,30 +295,42 @@ const Home = () => {
             {services.map((service, index) => (
               <div
                 key={index}
-                className="p-6 rounded-2xl card-hover animate-slide-up"
+                className="group rounded-2xl overflow-hidden card-hover animate-slide-up"
                 style={{ 
                   backgroundColor: 'var(--card-bg)', 
                   border: '1px solid var(--border-color)',
                   animationDelay: `${index * 0.1}s`
                 }}
               >
-                <div className="w-12 h-12 rounded-xl gradient-bg flex items-center justify-center mb-4">
-                  <FiActivity className="w-6 h-6 text-white" />
+                {/* Service Image */}
+                <div className="relative h-40 overflow-hidden">
+                  <img 
+                    src={serviceImages[service.name]}
+                    alt={service.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
+                  <div className="absolute bottom-3 left-3">
+                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-white/90 text-slate-800">
+                      {service.duration}
+                    </span>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
-                  {service.name}
-                </h3>
-                <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
-                  {service.duration} consultation
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold gradient-text">{service.price}</span>
-                  <Link 
-                    to="/services" 
-                    className="text-teal-500 hover:text-teal-400 transition-colors"
-                  >
-                    <FiArrowRight className="w-5 h-5" />
-                  </Link>
+                
+                <div className="p-5">
+                  <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+                    {service.name}
+                  </h3>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-bold gradient-text">{service.price}</span>
+                    <Link 
+                      to="/services" 
+                      className="w-10 h-10 rounded-full flex items-center justify-center bg-teal-500/10 text-teal-500 hover:bg-teal-500 hover:text-white transition-all"
+                    >
+                      <FiArrowRight className="w-5 h-5" />
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
@@ -283,7 +346,7 @@ const Home = () => {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8">
+      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
@@ -321,7 +384,7 @@ const Home = () => {
       </section>
 
       {/* Testimonials */}
-      <section id="testimonials" className="py-20 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+      <section id="testimonials" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
@@ -352,11 +415,12 @@ const Home = () => {
                   "{testimonial.content}"
                 </p>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full gradient-bg flex items-center justify-center">
-                    <span className="text-white font-semibold">
-                      {testimonial.name.charAt(0)}
-                    </span>
-                  </div>
+                  <img 
+                    src={testimonialAvatars[testimonial.name]}
+                    alt={testimonial.name}
+                    className="w-12 h-12 rounded-full object-cover"
+                    loading="lazy"
+                  />
                   <div>
                     <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>
                       {testimonial.name}
@@ -373,7 +437,7 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
         <div className="max-w-4xl mx-auto text-center">
           <div className="p-12 rounded-3xl gradient-bg relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />

@@ -6,9 +6,8 @@ import { getServices } from '../../store/slices/serviceSlice'
 import api from '../../store/api'
 import toast from 'react-hot-toast'
 import { DashboardLayout } from '../../components/layout'
-import { Card, Button, Select, Skeleton } from '../../components/ui'
+import { Card, Button, Select, Skeleton, LocationPicker } from '../../components/ui'
 import { FiCheck, FiCalendar, FiClock, FiMapPin, FiArrowLeft, FiArrowRight, FiCreditCard, FiUser } from 'react-icons/fi'
-import { LoadScript, Autocomplete } from '@react-google-maps/api'
 
 const BookingPage = () => {
   const { serviceId } = useParams()
@@ -17,14 +16,15 @@ const BookingPage = () => {
   const { services } = useSelector((state) => state.service)
   const { user } = useSelector((state) => state.auth)
   const [addresses, setAddresses] = useState([])
-  const [autocomplete, setAutocomplete] = useState(null)
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [newLocation, setNewLocation] = useState(null)
   const [formData, setFormData] = useState({
     addressId: '',
     scheduledDate: '',
     scheduledTime: '',
+    notes: '',
   })
 
   const service = services.find((s) => s._id === serviceId)
@@ -39,9 +39,9 @@ const BookingPage = () => {
   const fetchAddresses = async () => {
     try {
       const response = await api.get('/customer/addresses')
-      setAddresses(response.data.addresses)
-      if (response.data.addresses.length > 0) {
-        const defaultAddr = response.data.addresses.find((a) => a.isDefault) || response.data.addresses[0]
+      setAddresses(response.data.data.addresses)
+      if (response.data.data.addresses.length > 0) {
+        const defaultAddr = response.data.data.addresses.find((a) => a.isDefault) || response.data.data.addresses[0]
         setFormData((prev) => ({ ...prev, addressId: defaultAddr._id }))
       }
     } catch (error) {
@@ -51,29 +51,28 @@ const BookingPage = () => {
     }
   }
 
-  const handlePlaceSelect = async () => {
-    if (autocomplete) {
-      const place = autocomplete.getPlace()
+  const handleLocationSelect = async (locationData) => {
+    setNewLocation(locationData)
+    
+    try {
       const addressData = {
-        label: 'Other',
-        addressLine1: place.formatted_address,
-        city: place.address_components.find((c) => c.types.includes('locality'))?.long_name || '',
-        state: place.address_components.find((c) => c.types.includes('administrative_area_level_1'))?.long_name || '',
-        pincode: place.address_components.find((c) => c.types.includes('postal_code'))?.long_name || '',
-        coordinates: {
-          latitude: place.geometry.location.lat(),
-          longitude: place.geometry.location.lng(),
+        label: 'New Address',
+        addressLine1: locationData.address || 'Selected Location',
+        city: locationData.addressData?.city || '',
+        state: locationData.addressData?.state || '',
+        pincode: locationData.addressData?.postcode || '',
+        location: {
+          type: 'Point',
+          coordinates: [locationData.coordinates.lon, locationData.coordinates.lat],
         },
       }
 
-      try {
-        const response = await api.post('/customer/addresses', addressData)
-        setAddresses([...addresses, response.data.address])
-        setFormData({ ...formData, addressId: response.data.address._id })
-        toast.success('Address added successfully')
-      } catch (error) {
-        toast.error('Failed to add address')
-      }
+      const response = await api.post('/customer/addresses', addressData)
+      setAddresses([...addresses, response.data.data.address])
+      setFormData({ ...formData, addressId: response.data.data.address._id })
+      toast.success('Address added successfully')
+    } catch (error) {
+      toast.error('Failed to add address')
     }
   }
 
@@ -94,7 +93,7 @@ const BookingPage = () => {
         })
       ).unwrap()
       toast.success('Booking created successfully!')
-      navigate(`/payment/${result.booking._id}`)
+      navigate(`/customer/bookings/${result.booking._id}`)
     } catch (error) {
       toast.error(error || 'Booking failed')
     } finally {
@@ -271,18 +270,11 @@ const BookingPage = () => {
 
                     <div className="mt-4">
                       <p className="text-sm font-medium text-primary-700 mb-2">Or add new address</p>
-                      <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}>
-                        <Autocomplete
-                          onLoad={(auto) => setAutocomplete(auto)}
-                          onPlaceChanged={handlePlaceSelect}
-                        >
-                          <input
-                            type="text"
-                            placeholder="Search for an address..."
-                            className="w-full px-4 py-3 border border-primary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
-                          />
-                        </Autocomplete>
-                      </LoadScript>
+                      <LocationPicker
+                        onLocationSelect={handleLocationSelect}
+                        height="250px"
+                        showAddressSearch={true}
+                      />
                     </div>
                   </div>
 

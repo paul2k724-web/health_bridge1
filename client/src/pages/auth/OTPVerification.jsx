@@ -3,21 +3,48 @@ import { useDispatch } from 'react-redux'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { FiActivity, FiArrowLeft, FiShield } from 'react-icons/fi'
 import { verifyOTP } from '../../store/slices/authSlice'
+import api from '../../store/api'
 import { Button } from '../../components/ui'
 import toast from 'react-hot-toast'
 
 const OTPVerification = () => {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [countdown, setCountdown] = useState(0)
   const inputRefs = useRef([])
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()
   const userId = location.state?.userId
+  const redirectTo = location.state?.redirectTo
 
   useEffect(() => {
     inputRefs.current[0]?.focus()
   }, [])
+
+  useEffect(() => {
+    let timer
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000)
+    }
+    return () => clearTimeout(timer)
+  }, [countdown])
+
+  const handleResendOTP = async () => {
+    if (!userId || countdown > 0) return
+    
+    setResending(true)
+    try {
+      await api.post('/auth/forgot-password', { email: location.state?.email || '' })
+      toast.success('OTP sent successfully!')
+      setCountdown(60)
+    } catch (error) {
+      toast.error('Failed to resend OTP')
+    } finally {
+      setResending(false)
+    }
+  }
 
   const handleChange = (index, value) => {
     if (!/^\d*$/.test(value)) return
@@ -67,10 +94,13 @@ const OTPVerification = () => {
       const result = await dispatch(verifyOTP({ userId, otp: otpString })).unwrap()
       toast.success('OTP verified successfully!')
       const user = result.user
-      if (user.role === 'customer') {
+      
+      if (redirectTo) {
+        navigate(redirectTo)
+      } else if (user.role === 'customer') {
         navigate('/customer/dashboard')
       } else if (user.role === 'provider') {
-        navigate('/provider/dashboard')
+        navigate('/provider/onboarding')
       } else if (user.role === 'admin') {
         navigate('/admin/dashboard')
       } else {
@@ -185,8 +215,13 @@ const OTPVerification = () => {
             <div className="mt-6 pt-6 border-t border-primary-100">
               <p className="text-center text-sm text-primary-500">
                 Didn't receive the code?{' '}
-                <button className="font-medium text-accent-600 hover:text-accent-700">
-                  Resend OTP
+                <button 
+                  type="button"
+                  onClick={handleResendOTP}
+                  disabled={countdown > 0 || resending}
+                  className={`font-medium ${(countdown > 0 || resending) ? 'text-primary-300 cursor-not-allowed' : 'text-accent-600 hover:text-accent-700'}`}
+                >
+                  {resending ? 'Sending...' : countdown > 0 ? `Resend in ${countdown}s` : 'Resend OTP'}
                 </button>
               </p>
             </div>
