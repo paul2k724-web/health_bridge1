@@ -19,6 +19,12 @@ export default async function handler(req, res) {
   const path = queryIdx >= 0 ? url.substring(0, queryIdx) : url;
   const method = req.method;
 
+  // DEBUG - First line of code
+  console.log('=== API CALLED ===');
+  console.log('URL:', req.url);
+  console.log('Path:', path);
+  console.log('Method:', method);
+  
   // DEBUG - return path and method for /api routes
   if (path.startsWith('/api/')) {
     console.log('API path:', path, 'method:', method);
