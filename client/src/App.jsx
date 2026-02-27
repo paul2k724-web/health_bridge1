@@ -41,8 +41,13 @@ function App() {
   const { token, user, loading } = useSelector(state => state.auth)
 
   useEffect(() => {
+    // Only call getMe if we have a token but no user - and skip if just logged in
     if (token && !user) {
-      dispatch(getMe())
+      // Add a small delay to avoid race conditions
+      const timer = setTimeout(() => {
+        dispatch(getMe())
+      }, 500)
+      return () => clearTimeout(timer)
     }
   }, [token, dispatch, user])
 
