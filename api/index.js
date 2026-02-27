@@ -1,7 +1,7 @@
 import { clientPromise } from './lib/mongodb';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'healthbridge-secret-key-2024';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -37,12 +37,64 @@ export default async function handler(req, res) {
     }
   }
 
-  // Root endpoint
-  if (path === '/' || path === '') {
-    return res.status(200).json({
-      message: 'HealthBridge API',
-      version: '2.0'
-    });
+  // Seed admin user
+  if (path === '/api/seed' && method === 'POST') {
+    try {
+      const client = await clientPromise;
+      const db = client.db();
+      
+      const adminExists = await db.collection('users').findOne({ email: 'admin@gmail.com' });
+      if (!adminExists) {
+        await db.collection('users').insertOne({
+          name: 'Admin',
+          email: 'admin@gmail.com',
+          password: 'admin123',
+          phone: '+919999999999',
+          role: 'admin',
+          isVerified: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+      }
+
+      const customerExists = await db.collection('users').findOne({ email: 'customer@test.com' });
+      if (!customerExists) {
+        await db.collection('users').insertOne({
+          name: 'Test Customer',
+          email: 'customer@test.com',
+          password: 'Test@123',
+          phone: '+919999999998',
+          role: 'customer',
+          isVerified: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+      }
+
+      const providerExists = await db.collection('users').findOne({ email: 'provider@test.com' });
+      if (!providerExists) {
+        await db.collection('users').insertOne({
+          name: 'Test Provider',
+          email: 'provider@test.com',
+          password: 'Test@123',
+          phone: '+919999999997',
+          role: 'provider',
+          isVerified: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'Users seeded successfully'
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: 'Seed failed'
+      });
+    }
   }
 
   // Login endpoint
@@ -61,7 +113,6 @@ export default async function handler(req, res) {
         });
       }
 
-      // Simple password check (in production, use bcrypt)
       if (user.password !== password) {
         return res.status(401).json({
           success: false,
@@ -114,7 +165,7 @@ export default async function handler(req, res) {
       const result = await db.collection('users').insertOne({
         name,
         email,
-        password, // In production, hash this!
+        password,
         phone,
         role: role || 'customer',
         isVerified: true,
