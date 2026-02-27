@@ -1,7 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { getMe } from './store/slices/authSlice'
+import { useSelector } from 'react-redux'
 import ProtectedRoute from './components/ProtectedRoute'
 import RoleRoute from './components/RoleRoute'
 
@@ -37,19 +35,10 @@ import AdminReports from './pages/admin/Reports'
 import NotFound from './pages/NotFound'
 
 function App() {
-  const dispatch = useDispatch()
-  const { token, user, loading } = useSelector(state => state.auth)
+  const { token, user } = useSelector(state => state.auth)
 
-  useEffect(() => {
-    // Only call getMe if we have a token but no user - and skip if just logged in
-    if (token && !user) {
-      // Add a small delay to avoid race conditions
-      const timer = setTimeout(() => {
-        dispatch(getMe())
-      }, 500)
-      return () => clearTimeout(timer)
-    }
-  }, [token, dispatch, user])
+  // Login already returns user data, no need to call getMe()
+  // Token is stored in localStorage by login action
 
   return (
     <Routes>
