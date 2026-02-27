@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   const path = url.split('?')[0];
   const method = req.method;
 
-  // Health check
+  // Health check - NEW VERSION
   if (path === '/health' || path === '/api/health') {
     return res.status(200).json({
       status: 'healthy',
