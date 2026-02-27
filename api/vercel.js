@@ -6,72 +6,31 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
   const url = req.url || '';
-  const queryIdx = url.indexOf('?');
-  const path = queryIdx >= 0 ? url.substring(0, queryIdx) : url;
+  const path = url.split('?')[0];
   const method = req.method;
 
-  // DEBUG - First line of code
-  console.log('=== API CALLED ===');
-  console.log('URL:', req.url);
-  console.log('Path:', path);
-  console.log('Method:', method);
-  
-  // DEBUG - return path and method for /api routes
-  if (path.startsWith('/api/')) {
-    console.log('API path:', path, 'method:', method);
-  }
-
-  // Health check - VERSION 7 - TEST
-  if (path === '/health' || path === '/api/health' || path === '/api/health/') {
+  // Health check
+  if (path === '/health' || path === '/api/health') {
     return res.status(200).json({
       status: 'healthy',
-      timestamp: new Date().toISOString(),
-      environment: 'production',
-      message: 'VERSION 6'
-    });
-  }
-
-  // TEST ENDPOINT FOR DEBUG
-  if (path === '/api/test' || path === '/test') {
-    return res.status(200).json({
-      success: true,
-      message: 'Test endpoint works!',
-      path: path,
-      method: method
-    });
-  }
-
-  // Root endpoint
-  if (path === '/' || path === '') {
-    return res.status(200).json({
-      message: 'HealthBridge API',
-      version: '2.0'
+      timestamp: new Date().toISOString()
     });
   }
 
   // Login endpoint
-  if (path.includes('/auth/login')) {
+  if (path.includes('/auth/login') && method === 'POST') {
     const { email, password } = req.body || {};
     
     const demoUsers = {
       'admin@gmail.com': { name: 'Admin', role: 'admin', password: 'admin123' },
-      'test@gmail.com': { name: 'Test User', role: 'customer', password: 'test123' },
-      'customer@test.com': { name: 'Customer', role: 'customer', password: 'Test@123' },
-      'provider@test.com': { name: 'Provider', role: 'provider', password: 'Test@123' }
+      'test@gmail.com': { name: 'Test User', role: 'customer', password: 'test123' }
     };
-    
-    if (method !== 'POST') {
-      return res.status(405).json({ success: false, message: 'Method not allowed' });
-    }
     
     const user = demoUsers[email];
     
@@ -102,12 +61,8 @@ export default async function handler(req, res) {
   }
 
   // Register endpoint
-  if (path.includes('/auth/register')) {
+  if (path.includes('/auth/register') && method === 'POST') {
     const { name, email, password, role } = req.body || {};
-    
-    if (method !== 'POST') {
-      return res.status(405).json({ success: false, message: 'Method not allowed' });
-    }
     
     if (!email || !password) {
       return res.status(400).json({
@@ -136,11 +91,7 @@ export default async function handler(req, res) {
   }
 
   // Google login endpoint
-  if (path.includes('/auth/google')) {
-    if (method !== 'POST') {
-      return res.status(405).json({ success: false, message: 'Method not allowed' });
-    }
-    
+  if (path.includes('/auth/google') && method === 'POST') {
     const { idToken, role } = req.body || {};
     
     if (!idToken) {
@@ -151,13 +102,6 @@ export default async function handler(req, res) {
     }
     
     try {
-      if (!idToken || typeof idToken !== 'string') {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid token format'
-        });
-      }
-      
       const parts = idToken.split('.');
       if (parts.length !== 3) {
         return res.status(400).json({
@@ -190,23 +134,18 @@ export default async function handler(req, res) {
         }
       });
     } catch (e) {
-      console.error('Google token error:', e);
       return res.status(400).json({
         success: false,
-        message: 'Invalid Google token: ' + e.message
+        message: 'Invalid Google token'
       });
     }
   }
 
   // Verify OTP endpoint
-  if (path.includes('/auth/verify-otp')) {
-    if (method !== 'POST') {
-      return res.status(405).json({ success: false, message: 'Method not allowed' });
-    }
-    
+  if (path.includes('/auth/verify-otp') && method === 'POST') {
     const { userId, otp } = req.body || {};
     
-    if (!otp || otp.length !== 6 || !/^\d+$/.test(otp)) {
+    if (!otp || otp.length !== 6) {
       return res.status(400).json({
         success: false,
         message: 'Invalid OTP format'
@@ -233,10 +172,7 @@ export default async function handler(req, res) {
   }
 
   // Resend OTP endpoint
-  if (path.includes('/auth/resend-otp')) {
-    if (method !== 'POST') {
-      return res.status(405).json({ success: false, message: 'Method not allowed' });
-    }
+  if (path.includes('/auth/resend-otp') && method === 'POST') {
     return res.status(200).json({
       success: true,
       message: 'OTP sent successfully'
@@ -244,24 +180,15 @@ export default async function handler(req, res) {
   }
 
   // Forgot Password endpoint
-  if (path.includes('/auth/forgot-password')) {
-    if (method !== 'POST') {
-      return res.status(405).json({ success: false, message: 'Method not allowed' });
-    }
+  if (path.includes('/auth/forgot-password') && method === 'POST') {
     return res.status(200).json({
       success: true,
       message: 'If the email exists, an OTP will be sent'
     });
   }
 
-  // Get current user endpoint - WITH DEBUG
-  console.log('Path:', path, 'Method:', method);
-  if (path.includes('/auth/me')) {
-    console.log('Matched /auth/me');
-    if (method !== 'GET') {
-      return res.status(405).json({ success: false, message: 'Method not allowed' });
-    }
-    
+  // Get current user endpoint - FIXED
+  if (path.includes('/auth/me') && method === 'GET') {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
@@ -294,10 +221,7 @@ export default async function handler(req, res) {
   }
 
   // Logout endpoint
-  if (path.includes('/auth/logout')) {
-    if (method !== 'POST') {
-      return res.status(405).json({ success: false, message: 'Method not allowed' });
-    }
+  if (path.includes('/auth/logout') && method === 'POST') {
     return res.status(200).json({
       success: true,
       message: 'Logged out successfully'
