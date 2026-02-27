@@ -58,7 +58,8 @@ const Login = () => {
               navigate('/')
             }
           } catch (error) {
-            toast.error(error.response?.data?.message || 'Google login failed')
+            console.error('Google login error:', error)
+            toast.error(error?.response?.data?.message || error?.message || 'Google login failed')
           }
           setGoogleLoading(false)
         },
