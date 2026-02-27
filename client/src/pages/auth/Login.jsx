@@ -259,8 +259,7 @@ const Login = () => {
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-slate-200 dark:border-slate-700" />
                   </div>
-                  {/* Google login hidden for production until OAuth configured */}
-                  {/* 
+                  
                   <div className="relative flex justify-center text-sm">
                     <span className="px-4 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400">
                       Or continue with
@@ -278,7 +277,6 @@ const Login = () => {
                       {googleLoading ? 'Signing in...' : 'Continue with Google'}
                     </span>
                   </button>
-                  */}
                 </div>
             )}
 
