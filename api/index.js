@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     console.log('API path:', path, 'method:', method);
   }
 
-  // Health check - VERSION 6
+  // Health check - VERSION 7 - TEST
   if (path === '/health' || path === '/api/health' || path === '/api/health/') {
     return res.status(200).json({
       status: 'healthy',
