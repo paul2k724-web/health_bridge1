@@ -14,6 +14,11 @@ export default async function handler(req, res) {
   const path = (req.url || '').split('?')[0];
   const method = req.method;
 
+  // DEBUG - return path and method for /api routes
+  if (path.startsWith('/api/')) {
+    console.log('API path:', path, 'method:', method);
+  }
+
   // Health check
   if (path === '/health' || path === '/api/health' || path === '/api/health/') {
     return res.status(200).json({
