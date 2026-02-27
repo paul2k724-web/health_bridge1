@@ -36,11 +36,11 @@ const OTPVerification = () => {
     
     setResending(true)
     try {
-      await api.post('/auth/forgot-password', { email: location.state?.email || '' })
+      await api.post('/auth/resend-otp', { userId })
       toast.success('OTP sent successfully!')
       setCountdown(60)
     } catch (error) {
-      toast.error('Failed to resend OTP')
+      toast.error(error.response?.data?.message || 'Failed to resend OTP')
     } finally {
       setResending(false)
     }

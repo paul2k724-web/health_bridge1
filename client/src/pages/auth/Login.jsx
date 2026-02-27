@@ -99,7 +99,7 @@ const Login = () => {
         navigate('/')
       }
     } catch (error) {
-      toast.error(error || 'Login failed')
+      toast.error(error?.message || error || 'Login failed')
     }
   }
 

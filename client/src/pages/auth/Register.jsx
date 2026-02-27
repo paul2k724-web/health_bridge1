@@ -60,7 +60,7 @@ const Register = () => {
         })
       }
     } catch (error) {
-      toast.error(error || 'Registration failed')
+      toast.error(error?.message || error || 'Registration failed')
     }
   }
 

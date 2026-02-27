@@ -24,7 +24,7 @@ class AuthService {
   constructor() {
     this.otpExpiryMs = config.otp.expiryMinutes * 60 * 1000;
     this.otpMaxAttempts = config.otp.maxAttempts;
-    this.otpLockoutMs = config.otp.lockoutoutMinutes * 60 * 1000;
+    this.otpLockoutMs = config.otp.lockoutMinutes * 60 * 1000;
   }
 
   async register(userData, deviceInfo = {}) {
