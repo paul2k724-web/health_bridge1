@@ -39,23 +39,30 @@ const Login = () => {
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
         callback: async (response) => {
           try {
+            console.log('Google credential received')
             const res = await api.post('/auth/google', { 
               idToken: response.credential,
               role: 'customer'
             })
             
-            localStorage.setItem('token', res.data.data.token)
-            const user = await dispatch(getMe()).unwrap()
-            toast.success('Google login successful!')
+            console.log('API response:', res.data)
             
-            if (user.role === 'customer') {
-              navigate('/customer/dashboard')
-            } else if (user.role === 'provider') {
-              navigate('/provider/dashboard')
-            } else if (user.role === 'admin') {
-              navigate('/admin/dashboard')
+            if (res.data.success && res.data.data.token) {
+              localStorage.setItem('token', res.data.data.token)
+              const user = res.data.data.user
+              toast.success('Google login successful!')
+              
+              if (user.role === 'customer') {
+                navigate('/customer/dashboard')
+              } else if (user.role === 'provider') {
+                navigate('/provider/dashboard')
+              } else if (user.role === 'admin') {
+                navigate('/admin/dashboard')
+              } else {
+                navigate('/')
+              }
             } else {
-              navigate('/')
+              toast.error(res.data.message || 'Google login failed')
             }
           } catch (error) {
             console.error('Google login error:', error)
