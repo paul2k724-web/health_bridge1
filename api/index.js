@@ -13,10 +13,12 @@ export default async function handler(req, res) {
 
   let path = req.url || '';
   
-  // Handle Vercel route prefix - /api/auth/google becomes /auth/google
+  // Handle Vercel route prefix - strip /api if present
   if (path.startsWith('/api')) {
-    path = path.slice(4);
+    path = path.replace(/^\/api/, '');
   }
+  
+  console.log('Request path:', path, 'method:', method);
   
   const method = req.method;
 
