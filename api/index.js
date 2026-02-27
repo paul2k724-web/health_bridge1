@@ -14,17 +14,7 @@ export default async function handler(req, res) {
   const path = (req.url || '').split('?')[0];
   const method = req.method;
 
-  // Catch-all for /api - respond for ANYTHING
-  if (path.startsWith('/api')) {
-    return res.status(200).json({ 
-      success: true, 
-      message: 'API responded!',
-      path: path,
-      method: method 
-    });
-  }
-
-  // Health check - SIMPLE VERSION
+  // Health check
   if (path === '/api/health' || path === '/health') {
     return res.status(200).json({
       status: 'healthy',
@@ -194,39 +184,6 @@ export default async function handler(req, res) {
       success: true,
       message: 'If the email exists, an OTP will be sent'
     });
-  }
-
-  // Get current user endpoint
-  if (path.includes('/auth/me') && method === 'GET') {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({
-        success: false,
-        message: 'No token provided'
-      });
-    }
-    
-    try {
-      const token = authHeader.split(' ')[1];
-      const decoded = jwt.verify(token, JWT_SECRET);
-      
-      return res.status(200).json({
-        success: true,
-        data: {
-          user: {
-            name: decoded.name || 'User',
-            email: decoded.email,
-            role: decoded.role || 'customer',
-            avatar: decoded.picture
-          }
-        }
-      });
-    } catch (e) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid token'
-      });
-    }
   }
 
   // Logout endpoint
