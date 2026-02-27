@@ -38,11 +38,16 @@ const Login = () => {
       google.accounts.id.initialize({
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
         callback: async (response) => {
+          console.log('Google response:', response)
+          console.log('Credential:', response?.credential ? 'present' : 'missing')
           try {
             const res = await api.post('/auth/google', { 
               idToken: response.credential,
               role: 'customer'
             })
+            
+            console.log('API response status:', res.status)
+            console.log('API response data:', res.data)
             
             if (res.data.success && res.data.data.token) {
               localStorage.setItem('token', res.data.data.token)
