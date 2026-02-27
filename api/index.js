@@ -248,8 +248,10 @@ export default async function handler(req, res) {
     });
   }
 
-  // Get current user endpoint
+  // Get current user endpoint - WITH DEBUG
+  console.log('Path:', path, 'Method:', method);
   if (path.includes('/auth/me')) {
+    console.log('Matched /auth/me');
     if (method !== 'GET') {
       return res.status(405).json({ success: false, message: 'Method not allowed' });
     }
