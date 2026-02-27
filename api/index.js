@@ -277,6 +277,11 @@ export default async function handler(req, res) {
     });
   }
 
+  // TEST - Catch all /api routes
+  if (path.startsWith('/api/')) {
+    return res.status(200).json({ success: true, path, method, message: 'API route matched!' });
+  }
+  
   // Services endpoint
   if (path.includes('/services')) {
     return res.status(200).json({
