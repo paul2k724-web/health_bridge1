@@ -12,7 +12,8 @@ export default async function handler(req, res) {
   }
 
   const url = req.url || '';
-  const path = url.split('?')[0];
+  const queryIdx = url.indexOf('?');
+  const path = queryIdx >= 0 ? url.substring(0, queryIdx) : url;
   const method = req.method;
 
   // DEBUG - return path and method for /api routes
