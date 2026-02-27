@@ -20,7 +20,8 @@ export default async function handler(req, res) {
     return res.status(200).json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      environment: 'production'
+      environment: 'production',
+      version: '3.0'
     });
   }
 
