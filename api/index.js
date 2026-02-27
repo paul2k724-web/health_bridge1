@@ -19,6 +19,17 @@ export default async function handler(req, res) {
   const path = url.split('?')[0];
   const method = req.method;
 
+  // FORCE: Return test for ANY /api request
+  if (path.startsWith('/api')) {
+    return res.status(200).json({ 
+      success: true, 
+      message: 'API is working!',
+      path: path,
+      method: method,
+      version: '999'
+    });
+  }
+
   // TEST: Immediate response for auth/me
   if (path.includes('/auth/me')) {
     return res.status(200).json({ success: true, message: 'auth/me endpoint working!' });
