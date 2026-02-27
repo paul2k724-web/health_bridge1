@@ -14,6 +14,16 @@ export default async function handler(req, res) {
   const path = (req.url || '').split('?')[0];
   const method = req.method;
 
+  // Catch-all for /api - respond for ANYTHING
+  if (path.startsWith('/api')) {
+    return res.status(200).json({ 
+      success: true, 
+      message: 'API responded!',
+      path: path,
+      method: method 
+    });
+  }
+
   // Health check - SIMPLE VERSION
   if (path === '/api/health' || path === '/health') {
     return res.status(200).json({
