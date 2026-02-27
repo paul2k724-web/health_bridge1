@@ -44,21 +44,26 @@ const Login = () => {
               role: 'customer'
             })
             
-            localStorage.setItem('token', res.data.data.token)
-            const user = await dispatch(getMe()).unwrap()
-            toast.success('Google login successful!')
-            
-            if (user.role === 'customer') {
-              navigate('/customer/dashboard')
-            } else if (user.role === 'provider') {
-              navigate('/provider/dashboard')
-            } else if (user.role === 'admin') {
-              navigate('/admin/dashboard')
+            if (res.data.success && res.data.data.token) {
+              localStorage.setItem('token', res.data.data.token)
+              const user = res.data.data.user
+              toast.success('Google login successful!')
+              
+              if (user.role === 'customer') {
+                navigate('/customer/dashboard')
+              } else if (user.role === 'provider') {
+                navigate('/provider/dashboard')
+              } else if (user.role === 'admin') {
+                navigate('/admin/dashboard')
+              } else {
+                navigate('/')
+              }
             } else {
-              navigate('/')
+              toast.error(res.data.message || 'Google login failed')
             }
           } catch (error) {
-            toast.error(error.response?.data?.message || 'Google login failed')
+            console.error('Google login error:', error)
+            toast.error(error?.response?.data?.message || error?.message || 'Google login failed')
           }
           setGoogleLoading(false)
         },
