@@ -1,40 +1,43 @@
-import express from 'express';
-import cors from 'cors';
+export default function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-const app = express();
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
-app.use(cors());
-app.use(express.json());
+  const path = req.url || '';
 
-// Simple health that checks MongoDB connection
-app.get('/api/health', async (req, res) => {
-  try {
-    // For now, return healthy - full MongoDB connection will be configured
-    res.status(200).json({
+  if (path === '/api/health' || path === '/api/health/') {
+    return res.status(200).json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      environment: 'production',
-      database: 'connected',
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'unhealthy',
-      error: error.message,
+      environment: 'production'
     });
   }
-});
 
-app.get('/', (req, res) => {
-  res.json({
-    message: 'HealthBridge API',
-    version: '2.0',
-    endpoints: [
-      '/api/health',
-      '/api/auth/*',
-      '/api/services/*',
-      '/api/bookings/*',
-    ],
-  });
-});
+  if (path === '/' || path === '') {
+    return res.status(200).json({
+      message: 'HealthBridge API',
+      version: '2.0'
+    });
+  }
 
-export default app;
+  // For demo purposes, return mock responses
+  if (path.startsWith('/api/services')) {
+    return res.status(200).json({
+      success: true,
+      data: { services: [], message: 'Demo mode - backend not connected' }
+    });
+  }
+
+  if (path.startsWith('/api/auth/login')) {
+    return res.status(200).json({
+      success: true,
+      message: 'Demo mode - backend not connected'
+    });
+  }
+
+  res.status(404).json({ error: 'Not found', path });
+}
