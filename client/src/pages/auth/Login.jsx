@@ -259,25 +259,27 @@ const Login = () => {
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-slate-200 dark:border-slate-700" />
                   </div>
+                  {/* Google login hidden for production until OAuth configured */}
+                  {/* 
                   <div className="relative flex justify-center text-sm">
                     <span className="px-4 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400">
                       Or continue with
                     </span>
                   </div>
-                </div>
 
-                <button
-                  type="button"
-                  onClick={handleGoogleLogin}
-                  disabled={googleLoading}
-                  className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
-                >
-                  <FcGoogle className="w-5 h-5" />
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                    {googleLoading ? 'Signing in...' : 'Continue with Google'}
-                  </span>
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={handleGoogleLogin}
+                    disabled={googleLoading}
+                    className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
+                  >
+                    <FcGoogle className="w-5 h-5" />
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                      {googleLoading ? 'Signing in...' : 'Continue with Google'}
+                    </span>
+                  </button>
+                  */}
+                </div>
             )}
 
             <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
