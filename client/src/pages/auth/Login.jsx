@@ -21,10 +21,72 @@ const Login = () => {
   const { isDark, toggleTheme } = useTheme()
 
   const handleGoogleLogin = async () => {
+    console.log('Google login clicked')
+    console.log('VITE_GOOGLE_CLIENT_ID:', import.meta.env.VITE_GOOGLE_CLIENT_ID)
+    console.log('window.google:', window.google)
+    
     if (!import.meta.env.VITE_GOOGLE_CLIENT_ID) {
       toast.error('Google login is not configured')
       return
     }
+    
+    setGoogleLoading(true)
+    try {
+      const google = window.google
+      if (!google) {
+        console.error('Google SDK not loaded')
+        toast.error('Google login not available. Please refresh the page.')
+        setGoogleLoading(false)
+        return
+      }
+
+      console.log('Initializing Google...')
+      google.accounts.id.initialize({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        callback: async (response) => {
+          console.log('Google callback response:', response)
+          try {
+            console.log('Sending to API, credential:', response.credential?.slice(0, 50) + '...')
+            const res = await api.post('/auth/google', { 
+              idToken: response.credential,
+              role: 'customer'
+            })
+            
+            console.log('API response:', res.data)
+            
+            if (res.data.success && res.data.data.token) {
+              localStorage.setItem('token', res.data.data.token)
+              const user = res.data.data.user
+              toast.success('Google login successful!')
+              
+              if (user.role === 'customer') {
+                navigate('/customer/dashboard')
+              } else if (user.role === 'provider') {
+                navigate('/provider/dashboard')
+              } else if (user.role === 'admin') {
+                navigate('/admin/dashboard')
+              } else {
+                navigate('/')
+              }
+            } else {
+              toast.error(res.data.message || 'Google login failed')
+            }
+          } catch (error) {
+            console.error('Google login error:', error)
+            toast.error(error?.response?.data?.message || error?.message || 'Google login failed')
+          }
+          setGoogleLoading(false)
+        },
+      })
+      
+      console.log('Showing Google prompt...')
+      google.accounts.id.prompt()
+    } catch (error) {
+      console.error('Google login setup error:', error)
+      toast.error('Google login failed')
+      setGoogleLoading(false)
+    }
+  }
     
     setGoogleLoading(true)
     try {
