@@ -2,33 +2,26 @@
   "version": 2,
   "builds": [
     {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "client/dist/**",
       "use": "@vercel/static"
-    },
-    {
-      "src": "api/",
-      "use": "@vercel/node"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index.js"
+      "src": "/api/(.*)",
+      "dest": "/api/index.js"
     },
     {
-      "source": "/((?!assets/).*)",
-      "destination": "/client/dist/index.html"
-    }
-  ],
-  "headers": [
+      "src": "/assets/(.*)",
+      "dest": "/client/dist/assets/$1"
+    },
     {
-      "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
+      "src": "/(.*)",
+      "dest": "/client/dist/index.html"
     }
   ]
 }
