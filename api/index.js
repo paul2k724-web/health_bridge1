@@ -6,41 +6,19 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  res.setHeader('Surrogate-Control', 'no-store');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  const url = req.url || '';
-  const path = url.split('?')[0];
+  const path = (req.url || '').split('?')[0];
   const method = req.method;
 
-  // FORCE: Return test for ANY /api request
-  if (path.startsWith('/api')) {
-    return res.status(200).json({ 
-      success: true, 
-      message: 'API is working!',
-      path: path,
-      method: method,
-      version: '999'
-    });
-  }
-
-  // TEST: Immediate response for auth/me
-  if (path.includes('/auth/me')) {
-    return res.status(200).json({ success: true, message: 'auth/me endpoint working!' });
-  }
-
-  // Health check - TEST VERSION 123
-  if (path === '/health' || path === '/api/health') {
+  // Health check - SIMPLE VERSION
+  if (path === '/api/health' || path === '/health') {
     return res.status(200).json({
       status: 'healthy',
-      timestamp: new Date().toISOString(),
-      version: '123'
+      timestamp: new Date().toISOString()
     });
   }
 
@@ -208,7 +186,7 @@ export default async function handler(req, res) {
     });
   }
 
-  // Get current user endpoint - FIXED
+  // Get current user endpoint
   if (path.includes('/auth/me') && method === 'GET') {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
