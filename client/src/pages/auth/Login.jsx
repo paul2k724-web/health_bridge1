@@ -21,10 +21,6 @@ const Login = () => {
   const { isDark, toggleTheme } = useTheme()
 
   const handleGoogleLogin = async () => {
-    console.log('Google login clicked')
-    console.log('VITE_GOOGLE_CLIENT_ID:', import.meta.env.VITE_GOOGLE_CLIENT_ID)
-    console.log('window.google:', window.google)
-    
     if (!import.meta.env.VITE_GOOGLE_CLIENT_ID) {
       toast.error('Google login is not configured')
       return
@@ -34,64 +30,6 @@ const Login = () => {
     try {
       const google = window.google
       if (!google) {
-        console.error('Google SDK not loaded')
-        toast.error('Google login not available. Please refresh the page.')
-        setGoogleLoading(false)
-        return
-      }
-
-      console.log('Initializing Google...')
-      google.accounts.id.initialize({
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-        callback: async (response) => {
-          console.log('Google callback response:', response)
-          try {
-            console.log('Sending to API, credential:', response.credential?.slice(0, 50) + '...')
-            const res = await api.post('/auth/google', { 
-              idToken: response.credential,
-              role: 'customer'
-            })
-            
-            console.log('API response:', res.data)
-            
-            if (res.data.success && res.data.data.token) {
-              localStorage.setItem('token', res.data.data.token)
-              const user = res.data.data.user
-              toast.success('Google login successful!')
-              
-              if (user.role === 'customer') {
-                navigate('/customer/dashboard')
-              } else if (user.role === 'provider') {
-                navigate('/provider/dashboard')
-              } else if (user.role === 'admin') {
-                navigate('/admin/dashboard')
-              } else {
-                navigate('/')
-              }
-            } else {
-              toast.error(res.data.message || 'Google login failed')
-            }
-          } catch (error) {
-            console.error('Google login error:', error)
-            toast.error(error?.response?.data?.message || error?.message || 'Google login failed')
-          }
-          setGoogleLoading(false)
-        },
-      })
-      
-      console.log('Showing Google prompt...')
-      google.accounts.id.prompt()
-    } catch (error) {
-      console.error('Google login setup error:', error)
-      toast.error('Google login failed')
-      setGoogleLoading(false)
-    }
-  }
-    
-    setGoogleLoading(true)
-    try {
-      const google = window.google
-      if (!google) {
         toast.error('Google login not available. Please refresh the page.')
         setGoogleLoading(false)
         return
@@ -101,34 +39,26 @@ const Login = () => {
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
         callback: async (response) => {
           try {
-            console.log('Google credential received')
             const res = await api.post('/auth/google', { 
               idToken: response.credential,
               role: 'customer'
             })
             
-            console.log('API response:', res.data)
+            localStorage.setItem('token', res.data.data.token)
+            const user = await dispatch(getMe()).unwrap()
+            toast.success('Google login successful!')
             
-            if (res.data.success && res.data.data.token) {
-              localStorage.setItem('token', res.data.data.token)
-              const user = res.data.data.user
-              toast.success('Google login successful!')
-              
-              if (user.role === 'customer') {
-                navigate('/customer/dashboard')
-              } else if (user.role === 'provider') {
-                navigate('/provider/dashboard')
-              } else if (user.role === 'admin') {
-                navigate('/admin/dashboard')
-              } else {
-                navigate('/')
-              }
+            if (user.role === 'customer') {
+              navigate('/customer/dashboard')
+            } else if (user.role === 'provider') {
+              navigate('/provider/dashboard')
+            } else if (user.role === 'admin') {
+              navigate('/admin/dashboard')
             } else {
-              toast.error(res.data.message || 'Google login failed')
+              navigate('/')
             }
           } catch (error) {
-            console.error('Google login error:', error)
-            toast.error(error?.response?.data?.message || error?.message || 'Google login failed')
+            toast.error(error.response?.data?.message || 'Google login failed')
           }
           setGoogleLoading(false)
         },
@@ -169,7 +99,7 @@ const Login = () => {
         navigate('/')
       }
     } catch (error) {
-      toast.error(error?.message || error || 'Login failed')
+      toast.error(error || 'Login failed')
     }
   }
 
@@ -329,25 +259,25 @@ const Login = () => {
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-slate-200 dark:border-slate-700" />
                   </div>
-                  
                   <div className="relative flex justify-center text-sm">
                     <span className="px-4 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400">
                       Or continue with
                     </span>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={handleGoogleLogin}
-                    disabled={googleLoading}
-                    className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
-                  >
-                    <FcGoogle className="w-5 h-5" />
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                      {googleLoading ? 'Signing in...' : 'Continue with Google'}
-                    </span>
-                  </button>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  disabled={googleLoading}
+                  className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
+                >
+                  <FcGoogle className="w-5 h-5" />
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {googleLoading ? 'Signing in...' : 'Continue with Google'}
+                  </span>
+                </button>
+              </div>
             )}
 
             <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
