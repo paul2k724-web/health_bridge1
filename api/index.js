@@ -24,7 +24,18 @@ export default async function handler(req, res) {
     return res.status(200).json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      environment: 'production'
+      environment: 'production',
+      path: path
+    });
+  }
+
+  // TEST ENDPOINT FOR DEBUG
+  if (path === '/api/test' || path === '/test') {
+    return res.status(200).json({
+      success: true,
+      message: 'Test endpoint works!',
+      path: path,
+      method: method
     });
   }
 
