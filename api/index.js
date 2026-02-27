@@ -228,9 +228,10 @@ export default async function handler(req, res) {
     });
   }
 
-  // Get current user endpoint
-  if (path.includes('/auth/me')) {
-    if (method !== 'GET') {
+  // Get current user endpoint - TEST WITH EXPLICIT PATH
+  if (path === '/api/auth/me' || path === '/auth/me') {
+    return res.status(200).json({ success: true, message: 'Auth me endpoint works!' });
+  }
       return res.status(405).json({ success: false, message: 'Method not allowed' });
     }
     
