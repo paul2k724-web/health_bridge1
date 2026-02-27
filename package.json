@@ -11,7 +11,14 @@
     "start": "cd server && npm start",
     "install:all": "npm install && cd server && npm install && cd ../client && npm install"
   },
-  "keywords": ["healthcare", "booking", "platform"],
+  "keywords": [
+    "healthcare",
+    "booking",
+    "platform"
+  ],
   "author": "HealthBridge",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "mongodb": "^7.1.0"
+  }
 }
