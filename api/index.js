@@ -21,13 +21,13 @@ export default async function handler(req, res) {
     console.log('API path:', path, 'method:', method);
   }
 
-  // Health check - VERSION 5
+  // Health check - VERSION 6
   if (path === '/health' || path === '/api/health' || path === '/api/health/') {
     return res.status(200).json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
       environment: 'production',
-      path: path
+      message: 'VERSION 6'
     });
   }
 
