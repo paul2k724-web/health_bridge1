@@ -15,11 +15,17 @@ export default async function handler(req, res) {
   const path = url.split('?')[0];
   const method = req.method;
 
-  // Health check - NEW VERSION
+  // TEST: Immediate response for auth/me
+  if (path.includes('/auth/me')) {
+    return res.status(200).json({ success: true, message: 'auth/me endpoint working!' });
+  }
+
+  // Health check - TEST VERSION 123
   if (path === '/health' || path === '/api/health') {
     return res.status(200).json({
       status: 'healthy',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      version: '123'
     });
   }
 
