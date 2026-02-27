@@ -13,15 +13,13 @@ export default async function handler(req, res) {
 
   const path = (req.url || '').split('?')[0];
   const method = req.method;
-  const fullPath = path;
 
   // Health check
   if (path === '/health' || path === '/api/health' || path === '/api/health/') {
     return res.status(200).json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      environment: 'production',
-      version: '3.0'
+      environment: 'production'
     });
   }
 
@@ -229,10 +227,9 @@ export default async function handler(req, res) {
     });
   }
 
-  // Get current user endpoint - TEST WITH EXPLICIT PATH
-  if (path === '/api/auth/me' || path === '/auth/me') {
-    return res.status(200).json({ success: true, message: 'Auth me endpoint works!' });
-  }
+  // Get current user endpoint
+  if (path.includes('/auth/me')) {
+    if (method !== 'GET') {
       return res.status(405).json({ success: false, message: 'Method not allowed' });
     }
     
@@ -278,11 +275,6 @@ export default async function handler(req, res) {
     });
   }
 
-  // TEST - Catch all /api routes
-  if (path.startsWith('/api/')) {
-    return res.status(200).json({ success: true, path, method, message: 'API route matched!' });
-  }
-  
   // Services endpoint
   if (path.includes('/services')) {
     return res.status(200).json({
@@ -291,5 +283,5 @@ export default async function handler(req, res) {
     });
   }
 
-  res.status(404).json({ success: false, error: 'Not found', path: fullPath });
+  res.status(404).json({ success: false, error: 'Not found', path });
 }
