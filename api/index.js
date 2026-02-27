@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const path = req.url || '';
+  const path = (req.url || '').split('?')[0];
   const method = req.method;
   const fullPath = path;
 
