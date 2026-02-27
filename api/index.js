@@ -147,6 +147,75 @@ export default async function handler(req, res) {
     }
   }
 
+  // Google login endpoint
+  if (path === '/api/auth/google' && method === 'POST') {
+    try {
+      const { idToken, role } = req.body;
+      // For demo, accept any valid-looking token
+      // In production, verify with Google
+      
+      // Decode token (simplified - just extract email)
+      const payload = JSON.parse(Buffer.from(idToken.split('.')[1], 'base64').toString());
+      
+      const email = payload.email;
+      const name = payload.name || email.split('@')[0];
+      
+      const client = await clientPromise;
+      const db = client.db();
+      
+      let user = await db.collection('users').findOne({ email });
+      
+      if (!user) {
+        // Create new user
+        const result = await db.collection('users').insertOne({
+          name,
+          email,
+          password: 'google-oauth',
+          phone: payload.phone || '',
+          role: role || 'customer',
+          isVerified: true,
+          isGoogleAuth: true,
+          googleId: payload.sub,
+          picture: payload.picture,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+        
+        user = {
+          _id: result.insertedId,
+          name,
+          email,
+          role: role || 'customer'
+        };
+      }
+
+      const token = jwt.sign(
+        { userId: user._id, email: user.email, role: user.role },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          token,
+          user: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Google login error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Google login failed'
+      });
+    }
+  }
+
   // Register endpoint
   if (path === '/api/auth/register' && method === 'POST') {
     try {
