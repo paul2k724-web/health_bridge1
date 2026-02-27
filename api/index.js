@@ -12,14 +12,6 @@ export default async function handler(req, res) {
   }
 
   let path = req.url || '';
-  
-  // Handle Vercel route prefix - strip /api if present
-  if (path.startsWith('/api')) {
-    path = path.replace(/^\/api/, '');
-  }
-  
-  console.log('Request path:', path, 'method:', method);
-  
   const method = req.method;
 
   // Health check
@@ -40,7 +32,7 @@ export default async function handler(req, res) {
   }
 
   // Login endpoint
-  if (path === '/auth/login' && method === 'POST') {
+  if ((path === '/auth/login' || path === '/api/auth/login') && method === 'POST') {
     const { email, password } = req.body;
     
     const demoUsers = {
@@ -79,7 +71,7 @@ export default async function handler(req, res) {
   }
 
   // Register endpoint
-  if (path === '/auth/register' && method === 'POST') {
+  if ((path === '/auth/register' || path === '/api/auth/register') && method === 'POST') {
     const { name, email, password, role } = req.body;
     
     if (!email || !password) {
@@ -109,7 +101,7 @@ export default async function handler(req, res) {
   }
 
   // Google login endpoint
-  if (path === '/auth/google' && method === 'POST') {
+  if ((path === '/auth/google' || path === '/api/auth/google') && method === 'POST') {
     const { idToken, role } = req.body;
     
     if (!idToken) {
@@ -168,7 +160,7 @@ export default async function handler(req, res) {
   }
 
   // Verify OTP endpoint
-  if (path === '/auth/verify-otp' && method === 'POST') {
+  if ((path === '/auth/verify-otp' || path === '/api/auth/verify-otp') && method === 'POST') {
     const { userId, otp } = req.body;
     
     if (!otp || otp.length !== 6 || !/^\d+$/.test(otp)) {
@@ -198,7 +190,7 @@ export default async function handler(req, res) {
   }
 
   // Resend OTP endpoint
-  if (path === '/auth/resend-otp' && method === 'POST') {
+  if ((path === '/auth/resend-otp' || path === '/api/auth/resend-otp') && method === 'POST') {
     return res.status(200).json({
       success: true,
       message: 'OTP sent successfully'
@@ -206,7 +198,7 @@ export default async function handler(req, res) {
   }
 
   // Forgot Password endpoint
-  if (path === '/auth/forgot-password' && method === 'POST') {
+  if ((path === '/auth/forgot-password' || path === '/api/auth/forgot-password') && method === 'POST') {
     return res.status(200).json({
       success: true,
       message: 'If the email exists, an OTP will be sent'
@@ -214,7 +206,7 @@ export default async function handler(req, res) {
   }
 
   // Get current user endpoint
-  if (path === '/auth/me' && method === 'GET') {
+  if ((path === '/auth/me' || path === '/api/auth/me') && method === 'GET') {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
@@ -247,7 +239,7 @@ export default async function handler(req, res) {
   }
 
   // Logout endpoint
-  if (path === '/auth/logout' && method === 'POST') {
+  if ((path === '/auth/logout' || path === '/api/auth/logout') && method === 'POST') {
     return res.status(200).json({
       success: true,
       message: 'Logged out successfully'
